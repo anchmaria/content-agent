@@ -6,10 +6,15 @@ from config import YOUTUBE_API_KEY
 BASE_URL = "https://www.googleapis.com/youtube/v3"
 
 QUERIES = [
+    # Ниши
     "фэн-шуй", "китайская метафизика", "астрология", "биоэнергетика",
     "feng shui", "chinese metaphysics", "astrology trends",
     "feng shui consejos", "astrología", "风水", "占星",
     "Feng Shui Tipps", "Astrologie",
+    # Тревожность как боль аудитории
+    "тревожность как избавиться", "тревога панические атаки", "стресс и тревога",
+    "anxiety relief", "how to stop anxiety", "anxiety healing",
+    "ansiedad como combatir", "Angst überwinden",
 ]
 
 

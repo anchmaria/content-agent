@@ -19,6 +19,9 @@ QUERIES = [
     "инновации", "научное открытие", "future technology",
     # Планетарные новости
     "global transformation", "world crisis", "planetary event",
+    # Тревожность как боль аудитории
+    "anxiety epidemic", "anxiety healing", "тревожность", "mental health crisis",
+    "panic attacks treatment", "stress anxiety relief",
 ]
 
 

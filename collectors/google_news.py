@@ -7,15 +7,17 @@ QUERIES = {
         "фэн-шуй", "астрология", "биоэнергетика", "китайская метафизика",
         "астрономия новости", "затмение", "инновации", "научное открытие",
         "ретроград меркурий", "гороскоп",
+        "тревожность", "тревога и стресс", "панические атаки лечение",
     ],
     "en": [
         "feng shui", "astrology trends", "bioenergetics", "chinese metaphysics",
         "astronomy news", "space discovery", "eclipse", "innovation breakthrough",
         "mercury retrograde", "horoscope",
+        "anxiety epidemic", "anxiety healing", "mental health anxiety",
     ],
-    "es": ["feng shui consejos", "astrología", "astronomía", "innovación tecnológica"],
-    "zh": ["风水", "占星", "天文", "创新"],
-    "de": ["Feng Shui", "Astrologie", "Astronomie", "Innovation Durchbruch"],
+    "es": ["feng shui consejos", "astrología", "astronomía", "innovación tecnológica", "ansiedad solución"],
+    "zh": ["风水", "占星", "天文", "创新", "焦虑"],
+    "de": ["Feng Shui", "Astrologie", "Astronomie", "Innovation Durchbruch", "Angststörung"],
 }
 
 BASE_URL = "https://news.google.com/rss/search?q={query}&hl={lang}&gl={country}&ceid={ceid}"
