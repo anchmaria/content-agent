@@ -1,27 +1,23 @@
 import requests
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 BASE_URL = "https://api.gdeltproject.org/api/v2/doc/doc"
 
 QUERIES = [
     # Фэн-шуй и метафизика
-    "feng shui", "фэн-шуй", "chinese metaphysics", "bagua", "бацзы",
+    "feng shui", "chinese metaphysics", "bagua",
     # Астрология
-    "astrology", "астрология", "horoscope", "гороскоп", "astrología",
-    "mercury retrograde", "ретроград меркурий", "lunar eclipse", "solar eclipse",
-    "затмение", "планетарный транзит",
+    "astrology", "mercury retrograde", "lunar eclipse", "solar eclipse",
     # Астрономия и космос
-    "astronomy news", "NASA", "space discovery", "космос новости",
-    "aurora borealis", "meteor shower", "northern lights",
+    "astronomy news", "NASA space discovery", "aurora borealis",
     # Биоэнергетика и эзотерика
-    "bioenergetics", "биоэнергетика", "energy healing", "chakra",
+    "energy healing", "bioenergetics",
     # Инновации и технологии
     "breakthrough innovation", "AI discovery", "technology breakthrough",
-    "инновации", "научное открытие", "future technology",
     # Планетарные новости
-    "global transformation", "world crisis", "planetary event",
+    "world crisis planetary", "global transformation",
     # Тревожность как боль аудитории
-    "anxiety epidemic", "anxiety healing", "тревожность", "mental health crisis",
-    "panic attacks treatment", "stress anxiety relief",
+    "anxiety epidemic", "mental health crisis", "panic attacks treatment",
 ]
 
 
@@ -35,22 +31,18 @@ def fetch_query(query: str, max_records: int = 5) -> list[dict]:
         "sort": "hybridrel",
     }
     try:
-        r = requests.get(BASE_URL, params=params, timeout=15)
+        r = requests.get(BASE_URL, params=params, timeout=8)
         if r.status_code != 200:
             return []
-        data = r.json()
-        articles = data.get("articles", [])
-        result = []
-        for a in articles:
-            result.append({
-                "title": a.get("title", ""),
-                "url": a.get("url", ""),
-                "published": a.get("seendate", ""),
-                "source": a.get("domain", ""),
-                "lang": a.get("language", ""),
-                "query": query,
-            })
-        return result
+        articles = r.json().get("articles", [])
+        return [{
+            "title": a.get("title", ""),
+            "url": a.get("url", ""),
+            "published": a.get("seendate", ""),
+            "source": a.get("domain", ""),
+            "lang": a.get("language", ""),
+            "query": query,
+        } for a in articles]
     except Exception as e:
         print(f"GDELT error [{query}]: {e}")
         return []
@@ -59,10 +51,11 @@ def fetch_query(query: str, max_records: int = 5) -> list[dict]:
 def collect() -> list[dict]:
     all_items = []
     seen = set()
-    for query in QUERIES:
-        items = fetch_query(query, max_records=5)
-        for item in items:
-            if item["title"] and item["title"] not in seen:
-                seen.add(item["title"])
-                all_items.append(item)
+    with ThreadPoolExecutor(max_workers=6) as executor:
+        futures = {executor.submit(fetch_query, q): q for q in QUERIES}
+        for future in as_completed(futures):
+            for item in future.result():
+                if item["title"] and item["title"] not in seen:
+                    seen.add(item["title"])
+                    all_items.append(item)
     return all_items
