@@ -3,11 +3,19 @@ import xml.etree.ElementTree as ET
 from urllib.parse import quote
 
 QUERIES = {
-    "ru": ["фэн-шуй", "астрология", "биоэнергетика", "китайская метафизика"],
-    "en": ["feng shui", "astrology trends", "bioenergetics", "chinese metaphysics"],
-    "es": ["feng shui consejos", "astrología"],
-    "zh": ["风水", "占星"],
-    "de": ["Feng Shui", "Astrologie"],
+    "ru": [
+        "фэн-шуй", "астрология", "биоэнергетика", "китайская метафизика",
+        "астрономия новости", "затмение", "инновации", "научное открытие",
+        "ретроград меркурий", "гороскоп",
+    ],
+    "en": [
+        "feng shui", "astrology trends", "bioenergetics", "chinese metaphysics",
+        "astronomy news", "space discovery", "eclipse", "innovation breakthrough",
+        "mercury retrograde", "horoscope",
+    ],
+    "es": ["feng shui consejos", "astrología", "astronomía", "innovación tecnológica"],
+    "zh": ["风水", "占星", "天文", "创新"],
+    "de": ["Feng Shui", "Astrologie", "Astronomie", "Innovation Durchbruch"],
 }
 
 BASE_URL = "https://news.google.com/rss/search?q={query}&hl={lang}&gl={country}&ceid={ceid}"

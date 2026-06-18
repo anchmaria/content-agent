@@ -1,6 +1,7 @@
 from delivery.telegram import send_message
 from collectors.youtube import collect as collect_youtube
 from collectors.google_news import collect as collect_news
+from collectors.gdelt import collect as collect_gdelt
 
 
 def main():
@@ -10,14 +11,17 @@ def main():
 
     print("Собираю новости из Google News...")
     news = collect_news()
-    print(f"Найдено новостей: {len(news)}")
-    for n in news[:3]:
-        print(f"  [{n['lang']}] {n['title'][:70]}")
+    print(f"Найдено новостей Google News: {len(news)}")
+
+    print("Собираю новости из GDELT...")
+    gdelt = collect_gdelt()
+    print(f"Найдено новостей GDELT: {len(gdelt)}")
 
     msg = (
         f"✅ Сбор данных завершён.\n"
         f"📹 YouTube: {len(videos)} видео\n"
-        f"📰 Google News: {len(news)} новостей\n\n"
+        f"📰 Google News: {len(news)} новостей\n"
+        f"🌍 GDELT: {len(gdelt)} новостей\n\n"
         f"Топ видео: {videos[0]['title'][:60] if videos else '—'}\n"
         f"Топ новость: {news[0]['title'][:60] if news else '—'}"
     )
