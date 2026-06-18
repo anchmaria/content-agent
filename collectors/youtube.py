@@ -123,7 +123,7 @@ def collect(max_per_query: int = 10) -> list[dict]:
     for vid_id, meta in all_videos.items():
         s = stats.get(vid_id, {})
         views = s.get("views", 0)
-        if views < 5000:
+        if views < 20000:
             continue
         try:
             pub_dt = datetime.fromisoformat(meta["published"].replace("Z", "+00:00"))
