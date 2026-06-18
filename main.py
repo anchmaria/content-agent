@@ -1,29 +1,24 @@
-from delivery.telegram import send_message
+import os
+import tempfile
+from datetime import datetime
+
+from delivery.telegram import send_message, send_document
 from collectors.youtube import collect as collect_youtube
 from collectors.google_news import collect as collect_news
 from core.scoring import rank_videos, rank_news
 from core.dedup import filter_new_videos, filter_new_news, mark_seen
 from core.categorizer import categorize_all
-
-
-def _segment_label(segments: list[str]) -> str:
-    labels = {
-        "seeker": "Ищущие смысл",
-        "anxious": "Тревожные",
-        "practical": "Практики",
-        "ambitious": "Амбициозные",
-        "skeptic": "Скептики",
-        "general": "Широкая аудитория",
-    }
-    return ", ".join(labels.get(s, s) for s in segments)
+from core.report_builder import build_report
 
 
 def main():
     print("Собираю видео с YouTube...")
-    videos = collect_youtube(max_per_query=5)
+    videos = collect_youtube(max_per_query=10)
+    print(f"YouTube: {len(videos)}")
 
     print("Собираю новости из Google News...")
     news = collect_news()
+    print(f"Google News: {len(news)}")
 
     videos = filter_new_videos(videos)
     news = filter_new_news(news)
@@ -39,28 +34,31 @@ def main():
     pain_videos = [v for v in videos if v.get("is_pain_demand")]
     pain_news = [n for n in news if n.get("is_pain_demand")]
 
-    lines = [
-        f"✅ Сбор данных завершён.\n",
-        f"📹 YouTube: {len(videos)} видео  |  🔥 боль-спрос: {len(pain_videos)}",
-        f"📰 Google News: {len(news)} новостей  |  🔥 боль-спрос: {len(pain_news)}\n",
-        "━━━━ ТОП ВИДЕО (боль-спрос) ━━━━",
-    ]
+    print("Генерирую отчёт...")
+    report_text = build_report(videos, news)
 
-    for v in (pain_videos or videos)[:3]:
-        seg = _segment_label(v.get("segments", []))
-        lines.append(f"▶ {v['title'][:65]}\n   👥 Аудитория: {seg}")
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    report_path = os.path.join(tempfile.gettempdir(), f"content_report_{date_str}.txt")
+    with open(report_path, "w", encoding="utf-8") as f:
+        f.write(report_text)
 
-    lines.append("\n━━━━ ТОП НОВОСТИ (боль-спрос) ━━━━")
-    for n in (pain_news or news)[:3]:
-        seg = _segment_label(n.get("segments", []))
-        lines.append(f"📌 {n['title'][:65]}\n   👥 Аудитория: {seg}")
+    summary = (
+        f"📊 <b>Еженедельный контент-отчёт</b> — {datetime.now().strftime('%d.%m.%Y')}\n\n"
+        f"📹 Видео: {len(videos)}  |  🔥 боль-спрос: {len(pain_videos)}\n"
+        f"📰 Новости: {len(news)}  |  🔥 боль-спрос: {len(pain_news)}\n\n"
+        f"Топ-3 заголовка этой недели:\n"
+    )
+    top3 = (pain_videos + pain_news)[:3]
+    for i, item in enumerate(top3, 1):
+        summary += f"{i}. {item.get('title', '')[:60]}\n"
+    summary += "\n⬇️ Полный отчёт с источниками и сценариями — в файле ниже"
 
-    msg = "\n".join(lines)
-    ok = send_message(msg)
+    send_message(summary)
+    ok = send_document(report_path, caption=f"Полный отчёт {date_str}")
     if ok:
-        print("Сообщение отправлено в Telegram.")
+        print("Отчёт отправлен в Telegram.")
     else:
-        print("Ошибка отправки.")
+        print("Ошибка отправки файла.")
 
 
 if __name__ == "__main__":
