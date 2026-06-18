@@ -31,7 +31,7 @@ def fetch_query(query: str, max_records: int = 5) -> list[dict]:
         "sort": "hybridrel",
     }
     try:
-        r = requests.get(BASE_URL, params=params, timeout=8)
+        r = requests.get(BASE_URL, params=params, timeout=20)
         if r.status_code != 200:
             return []
         articles = r.json().get("articles", [])
