@@ -1,4 +1,3 @@
-import os
 import requests
 from datetime import datetime, timedelta, timezone
 from config import YOUTUBE_API_KEY
@@ -17,8 +16,16 @@ QUERIES = [
     "ansiedad como combatir", "Angst überwinden",
 ]
 
+PAIN_KEYWORDS = [
+    "почему", "не могу", "помогите", "устала", "страх", "боюсь", "тревог",
+    "как избавиться", "что делать", "не работает", "не помогает", "всё плохо",
+    "депрессия", "паника", "не сплю", "теряю", "зря", "обман", "не верю",
+    "why", "can't", "help", "scared", "fear", "anxiety", "panic", "doesn't work",
+    "what to do", "losing", "depressed", "exhausted", "struggling",
+]
 
-def _published_after(days: int = 14) -> str:
+
+def _published_after(days: int = 7) -> str:
     dt = datetime.now(timezone.utc) - timedelta(days=days)
     return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -29,7 +36,7 @@ def search_videos(query: str, max_results: int = 10) -> list[dict]:
         "q": query,
         "type": "video",
         "order": "relevance",
-        "publishedAfter": _published_after(14),
+        "publishedAfter": _published_after(7),
         "maxResults": max_results,
         "key": YOUTUBE_API_KEY,
     }
@@ -69,6 +76,38 @@ def get_stats(video_ids: list[str]) -> dict[str, dict]:
     return result
 
 
+def fetch_comments(video_id: str, max_comments: int = 30) -> list[str]:
+    params = {
+        "part": "snippet",
+        "videoId": video_id,
+        "order": "relevance",
+        "maxResults": max_comments,
+        "key": YOUTUBE_API_KEY,
+    }
+    try:
+        r = requests.get(f"{BASE_URL}/commentThreads", params=params, timeout=10)
+        if r.status_code != 200:
+            return []
+        items = r.json().get("items", [])
+        return [
+            i["snippet"]["topLevelComment"]["snippet"]["textDisplay"]
+            for i in items
+        ]
+    except Exception:
+        return []
+
+
+def extract_pains(comments: list[str]) -> list[str]:
+    pains = []
+    for comment in comments:
+        comment_lower = comment.lower()
+        if any(kw in comment_lower for kw in PAIN_KEYWORDS):
+            clean = comment.replace("\n", " ").strip()
+            if 10 < len(clean) < 300:
+                pains.append(clean)
+    return pains[:10]
+
+
 def collect(max_per_query: int = 10) -> list[dict]:
     all_videos = {}
     for query in QUERIES:
@@ -85,3 +124,11 @@ def collect(max_per_query: int = 10) -> list[dict]:
 
     result.sort(key=lambda x: x.get("views", 0), reverse=True)
     return result
+
+
+def collect_with_comments(videos: list[dict], top_n: int = 5) -> list[dict]:
+    for video in videos[:top_n]:
+        comments = fetch_comments(video["id"])
+        video["raw_comments"] = comments
+        video["pains"] = extract_pains(comments)
+    return videos

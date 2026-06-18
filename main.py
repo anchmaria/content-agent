@@ -3,7 +3,7 @@ import tempfile
 from datetime import datetime
 
 from delivery.telegram import send_message, send_document
-from collectors.youtube import collect as collect_youtube
+from collectors.youtube import collect as collect_youtube, collect_with_comments
 from collectors.google_news import collect as collect_news
 from core.scoring import rank_videos, rank_news
 from core.dedup import filter_new_videos, filter_new_news, mark_seen
@@ -28,6 +28,9 @@ def main():
 
     videos = categorize_all(videos)
     news = categorize_all(news)
+
+    print("Собираю комментарии для топ-5 видео...")
+    videos = collect_with_comments(videos, top_n=5)
 
     mark_seen(videos, news)
 

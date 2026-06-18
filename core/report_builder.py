@@ -39,31 +39,48 @@ def _axes(axes):
     return ", ".join(AXES_LABELS.get(a, a) for a in (axes or ["other"]))
 
 
-def _apply_formula(title: str, segment: str) -> tuple[str, str]:
-    title_short = title[:60].strip()
+def _trunc(text: str, max_len: int) -> str:
+    if len(text) <= max_len:
+        return text
+    cut = text[:max_len]
+    last_space = cut.rfind(" ")
+    return (cut[:last_space] if last_space > max_len * 0.7 else cut) + "..."
 
-    if "почему" in title.lower() or "why" in title.lower():
-        formula = "pain_targeting"
-        headline = f"Почему вы не можете избавиться от этого — даже когда стараетесь ({title_short})"
-    elif any(w in title.lower() for w in ["ошибк", "mistake", "wrong"]):
-        formula = "pattern_break"
-        headline = f"Ошибка, которую делают все: {title_short}"
-    elif any(w in title.lower() for w in ["как", "how", "способ"]):
-        formula = "concrete_value"
-        headline = f"3 шага, которые меняют всё: {title_short}"
-    elif any(w in title.lower() for w in ["тревог", "anxiety", "stress", "стресс"]):
-        formula = "pain_targeting"
-        headline = f"Если тревога не отпускает — это видео для вас ({title_short})"
-    elif any(w in title.lower() for w in ["фэн-шуй", "feng shui", "风水"]):
-        formula = "curiosity_gap"
-        headline = f"Я нашла одну вещь в квартире, которая блокирует энергию. Это не хлам ({title_short})"
-    elif any(w in title.lower() for w in ["астролог", "astro", "гороскоп"]):
-        formula = "discovery"
-        headline = f"Мне понадобилось 5 лет, чтобы понять этот принцип в астрологии ({title_short})"
+
+def _engagement_rate(v: dict) -> str:
+    views = v.get("views", 0)
+    if not views:
+        return "—"
+    er = (v.get("likes", 0) + v.get("comments", 0)) / views * 100
+    return f"{er:.1f}%"
+
+
+def _apply_formula(title: str) -> tuple[str, str]:
+    t = title.lower()
+    if any(w in t for w in ["тревог", "anxiety", "паник", "стресс", "stress"]):
+        formula = "Попадание в боль"
+        headline = f"Если тревога не отпускает даже ночью — это видео для вас"
+    elif any(w in t for w in ["ошибк", "mistake", "wrong", "не так"]):
+        formula = "Разрыв шаблона"
+        headline = f"Ошибка, которую делают все: {_trunc(title, 55)}"
+    elif any(w in t for w in ["как ", "how ", "способ", "метод", "шаг"]):
+        formula = "Конкретная польза"
+        headline = f"3 шага которые реально работают: {_trunc(title, 50)}"
+    elif any(w in t for w in ["фэн-шуй", "feng shui", "风水", "bagua"]):
+        formula = "Незакрытая петля"
+        headline = f"Я нашла одну вещь в квартире которая блокирует деньги — и это не хлам"
+    elif any(w in t for w in ["астролог", "гороскоп", "astro", "horoscope", "mercury"]):
+        formula = "Открытие-сюрприз"
+        headline = f"Мне понадобилось 5 лет чтобы понять этот принцип в астрологии"
+    elif any(w in t for w in ["деньг", "money", "доход", "финанс"]):
+        formula = "Попадание в боль"
+        headline = f"Куда утекают деньги даже когда вы экономите — {_trunc(title, 45)}"
+    elif any(w in t for w in ["энерг", "energy", "усталост", "tired"]):
+        formula = "Попадание в боль"
+        headline = f"Почему вы устаёте даже когда высыпаетесь"
     else:
-        formula = "pain_targeting"
-        headline = f"Куда уходит ваша энергия, пока вы этого не знаете ({title_short})"
-
+        formula = "Попадание в боль"
+        headline = f"Что я как эксперт никогда не делаю — и вам не советую"
     return headline, formula
 
 
@@ -84,98 +101,117 @@ def build_report(videos: list[dict], news: list[dict]) -> str:
     vi, ni = 0, 0
     while len(top_items) < 10:
         if vi < len(pain_videos):
-            top_items.append(("video", pain_videos[vi]))
-            vi += 1
+            top_items.append(("video", pain_videos[vi])); vi += 1
         if len(top_items) < 10 and ni < len(pain_news):
-            top_items.append(("news", pain_news[ni]))
-            ni += 1
+            top_items.append(("news", pain_news[ni])); ni += 1
         if vi >= len(pain_videos) and ni >= len(pain_news):
             break
 
     lines = []
-    lines.append("=" * 60)
-    lines.append(f"  ЕЖЕНЕДЕЛЬНЫЙ КОНТЕНТ-ОТЧЁТ")
+    lines.append("=" * 62)
+    lines.append("  ЕЖЕНЕДЕЛЬНЫЙ КОНТЕНТ-ОТЧЁТ")
     lines.append(f"  Сгенерировано: {now}")
-    lines.append("=" * 60)
-    lines.append(f"\nСобрано: {len(videos)} видео · {len(news)} новостей")
+    lines.append("=" * 62)
+    lines.append(f"\nСобрано за последние 7 дней: {len(videos)} видео · {len(news)} новостей")
     lines.append(f"Боль-спрос: {len(pain_videos)} видео · {len(pain_news)} новостей\n")
 
-    lines.append("=" * 60)
-    lines.append("  РАЗДЕЛ 1: 10 ТЕМ-ЗАГОЛОВКОВ (боль-спрос первыми)")
-    lines.append("  Готово к съёмке — с источниками и аудиторией")
-    lines.append("=" * 60)
+    # ── РАЗДЕЛ 1: БОЛИ ИЗ КОММЕНТАРИЕВ ──────────────────────────
+    lines.append("=" * 62)
+    lines.append("  РАЗДЕЛ 1: РЕАЛЬНЫЕ БОЛИ АУДИТОРИИ (из комментариев)")
+    lines.append("  Что люди пишут под роликами — их словами")
+    lines.append("=" * 62)
 
-    formula_names = {
-        "pain_targeting": "Попадание в боль",
-        "pattern_break": "Разрыв шаблона",
-        "concrete_value": "Конкретная польза",
-        "curiosity_gap": "Незакрытая петля",
-        "discovery": "Открытие-сюрприз",
-    }
+    videos_with_pains = [v for v in videos if v.get("pains")]
+    if videos_with_pains:
+        all_pains = []
+        for v in videos_with_pains[:5]:
+            lines.append(f"\n🎥 {_trunc(v.get('title', ''), 70)}")
+            lines.append(f"   👁 {v.get('views', 0):,} просмотров  |  ❤️ {v.get('likes', 0):,}  |  💬 {v.get('comments', 0):,}  |  ER: {_engagement_rate(v)}")
+            lines.append(f"   🔗 https://youtube.com/watch?v={v.get('id', '')}")
+            lines.append(f"   Аудитория: {_seg(v.get('segments'))}")
+            lines.append(f"\n   Что пишут в комментариях (боли):")
+            for pain in v.get("pains", [])[:5]:
+                lines.append(f"   • {_trunc(pain, 120)}")
+            all_pains.extend(v.get("pains", []))
+    else:
+        lines.append("\n  Данные комментариев будут доступны со следующего запуска")
+        lines.append("  (лимит YouTube API сбрасывается каждые 24 часа)")
+
+    # ── РАЗДЕЛ 2: 10 ЗАГОЛОВКОВ ──────────────────────────────────
+    lines.append(f"\n{'=' * 62}")
+    lines.append("  РАЗДЕЛ 2: 10 ТЕМ-ЗАГОЛОВКОВ (боль-спрос первыми)")
+    lines.append("  Готово к съёмке — с источниками")
+    lines.append("=" * 62)
 
     for i, (kind, item) in enumerate(top_items[:10], 1):
         title = item.get("title", "")
-        headline, formula = _apply_formula(title, (item.get("segments") or ["general"])[0])
+        headline, formula = _apply_formula(title)
         seg = _seg(item.get("segments"))
         axes = _axes(item.get("axes"))
 
         if kind == "video":
-            source_type = "YouTube"
             source_url = f"https://youtube.com/watch?v={item.get('id', '')}"
-            views = item.get("views", 0)
-            stats = f"{views:,} просмотров · канал: {item.get('channel', '—')}"
+            source_type = f"YouTube · {item.get('channel', '—')}"
+            stats = (f"👁 {item.get('views', 0):,}  ❤️ {item.get('likes', 0):,}"
+                     f"  💬 {item.get('comments', 0):,}  ER: {_engagement_rate(item)}")
         else:
-            source_type = item.get("source", "Google News")
-            source_url = item.get("url", "—")
-            stats = f"Опубликовано: {item.get('published', '')[:16]}"
+            source_url = item.get("url") or item.get("link", "—")
+            source_type = f"Google News · {item.get('source', '—')} [{item.get('lang', '')}]"
+            stats = f"Опубликовано: {item.get('published', '')[:22]}"
 
-        lines.append(f"\n{'─' * 55}")
-        lines.append(f"#{i}  🔥 ЗАГОЛОВОК (боль-спрос):")
+        lines.append(f"\n{'─' * 58}")
+        lines.append(f"#{i}  🔥 ЗАГОЛОВОК:")
         lines.append(f"    «{headline}»")
         lines.append(f"")
-        lines.append(f"    Формула: {formula_names.get(formula, formula)}")
+        lines.append(f"    Формула: {formula}")
         lines.append(f"    Аудитория: {seg}")
-        lines.append(f"    Макро-ось: {axes}")
-        lines.append(f"    Источник ({source_type}): {source_url}")
-        lines.append(f"    Оригинал: {title[:70]}")
+        lines.append(f"    Тема: {axes}")
+        lines.append(f"    Источник: {source_type}")
+        lines.append(f"    Ссылка: {source_url}")
+        lines.append(f"    Оригинал: {_trunc(title, 80)}")
         lines.append(f"    Статистика: {stats}")
 
-    lines.append(f"\n{'=' * 60}")
-    lines.append("  РАЗДЕЛ 2: ТОП-10 ВИДЕО ПО СКОРИНГУ")
-    lines.append("=" * 60)
+    # ── РАЗДЕЛ 3: ТОП ВИДЕО ──────────────────────────────────────
+    lines.append(f"\n{'=' * 62}")
+    lines.append("  РАЗДЕЛ 3: ТОП-10 ВИДЕО ПО ВОВЛЕЧЁННОСТИ")
+    lines.append("=" * 62)
 
     for i, v in enumerate(videos[:10], 1):
-        seg = _seg(v.get("segments"))
-        pain_mark = "🔥" if v.get("is_pain_demand") else "  "
-        lines.append(f"\n{pain_mark} #{i} {v.get('title', '')[:70]}")
-        lines.append(f"     Просмотры: {v.get('views', 0):,}  |  Лайки: {v.get('likes', 0):,}  |  Комменты: {v.get('comments', 0):,}")
-        lines.append(f"     Скор: {v.get('score', 0):.1f}  |  Аудитория: {seg}")
-        lines.append(f"     Канал: {v.get('channel', '—')}")
-        lines.append(f"     Ссылка: https://youtube.com/watch?v={v.get('id', '')}")
+        pain_mark = "🔥" if v.get("is_pain_demand") else "▶"
+        lines.append(f"\n{pain_mark} #{i} {_trunc(v.get('title', ''), 75)}")
+        lines.append(f"   👁 {v.get('views', 0):,} просмотров  ❤️ {v.get('likes', 0):,} лайков"
+                     f"  💬 {v.get('comments', 0):,} комментариев  ER: {_engagement_rate(v)}")
+        lines.append(f"   Канал: {v.get('channel', '—')}  |  Аудитория: {_seg(v.get('segments'))}")
+        lines.append(f"   Ссылка: https://youtube.com/watch?v={v.get('id', '')}")
+        if v.get("pains"):
+            lines.append(f"   Боль из комментариев: {_trunc(v['pains'][0], 100)}")
 
-    lines.append(f"\n{'=' * 60}")
-    lines.append("  РАЗДЕЛ 3: ТОП-10 НОВОСТЕЙ И ТРЕНДОВ")
-    lines.append("=" * 60)
+    # ── РАЗДЕЛ 4: ТОП НОВОСТИ ────────────────────────────────────
+    lines.append(f"\n{'=' * 62}")
+    lines.append("  РАЗДЕЛ 4: ТОП-10 НОВОСТЕЙ (последние 7 дней)")
+    lines.append("=" * 62)
 
     for i, n in enumerate(news[:10], 1):
-        seg = _seg(n.get("segments"))
-        pain_mark = "🔥" if n.get("is_pain_demand") else "  "
-        lines.append(f"\n{pain_mark} #{i} {n.get('title', '')[:70]}")
-        lines.append(f"     Источник: {n.get('source', '—')}  |  Язык: {n.get('lang', '—')}")
-        lines.append(f"     Аудитория: {seg}")
-        lines.append(f"     Ссылка: {n.get('url') or n.get('link', '—')}")
+        pain_mark = "🔥" if n.get("is_pain_demand") else "📌"
+        lines.append(f"\n{pain_mark} #{i} {_trunc(n.get('title', ''), 75)}")
+        lines.append(f"   Источник: {n.get('source', '—')}  |  Язык: {n.get('lang', '—')}")
+        lines.append(f"   Аудитория: {_seg(n.get('segments'))}")
+        lines.append(f"   Опубликовано: {n.get('published', '')[:22]}")
+        url = n.get("url") or n.get("link", "—")
+        lines.append(f"   Ссылка: {url}")
 
-    lines.append(f"\n{'=' * 60}")
-    lines.append("  РАЗДЕЛ 4: БОЛИ АУДИТОРИИ ПО СЕГМЕНТАМ")
-    lines.append("=" * 60)
+    # ── РАЗДЕЛ 5: БОЛИ ПО СЕГМЕНТАМ ─────────────────────────────
+    lines.append(f"\n{'=' * 62}")
+    lines.append("  РАЗДЕЛ 5: БОЛИ АУДИТОРИИ ПО СЕГМЕНТАМ")
+    lines.append("=" * 62)
 
-    segment_items = {}
+    segment_items: dict[str, list[str]] = {}
     for item in list(pain_videos) + list(pain_news):
         for seg in item.get("segments", ["general"]):
             if seg not in segment_items:
                 segment_items[seg] = []
             if len(segment_items[seg]) < 5:
-                segment_items[seg].append(item.get("title", "")[:70])
+                segment_items[seg].append(_trunc(item.get("title", ""), 75))
 
     for seg_id, titles in segment_items.items():
         if titles:
@@ -183,28 +219,8 @@ def build_report(videos: list[dict], news: list[dict]) -> str:
             for t in titles:
                 lines.append(f"   • {t}")
 
-    lines.append(f"\n{'=' * 60}")
-    lines.append("  РАЗДЕЛ 5: КАК СНИМАТЬ (памятка)")
-    lines.append("=" * 60)
-    hooks = hook_data.get("hook_types", [])
-    lines.append(f"\nТоп-5 типов хуков по просмотрам (2026):")
-    for h in hooks[:5]:
-        lines.append(f"\n  [{h['type'].upper()}] {h['name']}")
-        lines.append(f"  Механика: {h['mechanic']}")
-        lines.append(f"  Пример: «{h['example']}»")
-        lines.append(f"  Почему работает: {h['why_works']}")
-
-    lines.append(f"\nСтруктура короткого видео 15–60 сек:")
-    struct = hook_data.get("video_structure", {}).get("short_15_60s", {})
-    for k, v in struct.items():
-        lines.append(f"  {k.replace('_', '–')} сек: {v}")
-
-    lines.append(f"\nАнтипаттерны (что убивает охваты):")
-    for ap in hook_data.get("anti_patterns", []):
-        lines.append(f"  ✗ {ap}")
-
-    lines.append(f"\n{'=' * 60}")
-    lines.append("  Конец отчёта. Content-Agent by Maria")
-    lines.append("=" * 60)
+    lines.append(f"\n{'=' * 62}")
+    lines.append("  Конец отчёта. Content-Agent — Maria")
+    lines.append("=" * 62)
 
     return "\n".join(lines)
