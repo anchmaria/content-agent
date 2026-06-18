@@ -35,8 +35,7 @@ def search_videos(query: str, max_results: int = 10) -> list[dict]:
         "part": "snippet",
         "q": query,
         "type": "video",
-        "order": "relevance",
-        "publishedAfter": _published_after(7),
+        "order": "viewCount",
         "maxResults": max_results,
         "key": YOUTUBE_API_KEY,
     }
@@ -109,6 +108,9 @@ def extract_pains(comments: list[str]) -> list[str]:
 
 
 def collect(max_per_query: int = 10) -> list[dict]:
+    from datetime import datetime, timedelta, timezone
+    cutoff = datetime.now(timezone.utc) - timedelta(days=30)
+
     all_videos = {}
     for query in QUERIES:
         videos = search_videos(query, max_per_query)
@@ -120,6 +122,15 @@ def collect(max_per_query: int = 10) -> list[dict]:
     result = []
     for vid_id, meta in all_videos.items():
         s = stats.get(vid_id, {})
+        views = s.get("views", 0)
+        if views < 5000:
+            continue
+        try:
+            pub_dt = datetime.fromisoformat(meta["published"].replace("Z", "+00:00"))
+            if pub_dt < cutoff:
+                continue
+        except Exception:
+            pass
         result.append({**meta, **s})
 
     result.sort(key=lambda x: x.get("views", 0), reverse=True)
