@@ -28,7 +28,7 @@ def search_videos(query: str, max_results: int = 10) -> list[dict]:
         "part": "snippet",
         "q": query,
         "type": "video",
-        "order": "viewCount",
+        "order": "relevance",
         "publishedAfter": _published_after(14),
         "maxResults": max_results,
         "key": YOUTUBE_API_KEY,
