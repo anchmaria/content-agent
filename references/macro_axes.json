@@ -1,0 +1,63 @@
+{
+  "macro_axes": [
+    {
+      "id": "money",
+      "name": "Деньги и финансы",
+      "keywords_ru": ["деньги", "доход", "финансы", "инфляция", "заработок", "инвестиции", "бюджет", "богатство"],
+      "keywords_en": ["money", "income", "finance", "inflation", "earn", "invest", "wealth", "budget"],
+      "pain": "финансовая нестабильность, страх бедности, инфляция"
+    },
+    {
+      "id": "health",
+      "name": "Здоровье и wellness",
+      "keywords_ru": ["здоровье", "энергия", "сон", "гормоны", "усталость", "тело", "wellness", "питание"],
+      "keywords_en": ["health", "energy", "sleep", "hormones", "tired", "body", "wellness", "nutrition"],
+      "pain": "хроническая усталость, выгорание, непонятные симптомы"
+    },
+    {
+      "id": "ai_future",
+      "name": "ИИ и будущее работы",
+      "keywords_ru": ["ИИ", "нейросети", "автоматизация", "профессии", "будущее", "ChatGPT", "технологии"],
+      "keywords_en": ["AI", "artificial intelligence", "automation", "jobs", "future", "ChatGPT", "technology"],
+      "pain": "страх замены роботом, потеря работы, непонимание новых технологий"
+    },
+    {
+      "id": "psychology",
+      "name": "Психология и отношения",
+      "keywords_ru": ["тревога", "тревожность", "выгорание", "нарцисс", "границы", "самооценка", "стресс", "панические атаки", "психология"],
+      "keywords_en": ["anxiety", "burnout", "narcissist", "boundaries", "self-esteem", "stress", "panic", "psychology"],
+      "pain": "тревожность, панические атаки, токсичные отношения, низкая самооценка"
+    },
+    {
+      "id": "freedom",
+      "name": "Свобода и образ жизни",
+      "keywords_ru": ["удалёнка", "переезд", "путешествия", "свобода", "жизнь за границей", "цифровой кочевник"],
+      "keywords_en": ["remote work", "travel", "freedom", "expat", "digital nomad", "lifestyle"],
+      "pain": "ощущение ловушки, работа ради работы, нет жизни вне офиса"
+    },
+    {
+      "id": "simplicity",
+      "name": "Время и простота",
+      "keywords_ru": ["антивыгорание", "продуктивность", "система", "хаос", "меньше", "15 минут", "успевать"],
+      "keywords_en": ["productivity", "simplicity", "system", "chaos", "less", "time", "schedule"],
+      "pain": "хаос, ничего не успеваю, перегруз информацией"
+    },
+    {
+      "id": "identity",
+      "name": "Идентичность и статус",
+      "keywords_ru": ["личный бренд", "тихая роскошь", "статус", "образ", "имидж", "кто я"],
+      "keywords_en": ["personal brand", "quiet luxury", "status", "image", "identity", "who am i"],
+      "pain": "непонимание себя, как меня видят другие, страх не соответствовать"
+    }
+  ],
+
+  "niche_axes": {
+    "feng_shui": ["money", "identity", "health"],
+    "metaphysics": ["identity", "psychology", "freedom"],
+    "astrology": ["psychology", "identity", "simplicity"],
+    "bioenergetics": ["health", "psychology", "identity"],
+    "astronomy": ["ai_future", "identity"],
+    "innovations": ["ai_future", "money", "freedom"],
+    "anxiety": ["psychology", "health", "simplicity"]
+  }
+}
