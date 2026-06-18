@@ -28,14 +28,19 @@ def score_video(video: dict) -> float:
     duration = video.get("duration", "")
 
     hours = _hours_since(published)
+
+    # velocity: скорость набора просмотров
     velocity = views / hours
-    engagement = (likes + comments) / max(views, 1)
+
+    # weighted engagement: комментарии x5 (прокси пересылок), лайки x1
+    # по данным 2026: shares > saves > comments > likes
+    weighted_engagement = (likes * 1 + comments * 5) / max(views, 1)
 
     dur_sec = _parse_duration_seconds(duration)
     is_short = 1 <= dur_sec <= 60
     short_bonus = 1.3 if is_short else 1.0
 
-    return round(velocity * (1 + engagement) * short_bonus, 2)
+    return round(velocity * (1 + weighted_engagement) * short_bonus, 2)
 
 
 def score_news(item: dict) -> float:
