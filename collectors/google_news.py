@@ -5,19 +5,19 @@ from urllib.parse import quote
 QUERIES = {
     "ru": [
         "фэн-шуй", "астрология", "биоэнергетика", "китайская метафизика",
-        "астрономия новости", "затмение", "инновации", "научное открытие",
-        "ретроград меркурий", "гороскоп",
-        "тревожность", "тревога и стресс", "панические атаки лечение",
+        "затмение", "ретроград меркурий", "гороскоп",
+        "тревожность", "тревога и стресс", "панические атаки",
+        "астрономия открытие", "научное открытие", "инновации технологии",
     ],
     "en": [
-        "feng shui", "astrology trends", "bioenergetics", "chinese metaphysics",
-        "astronomy news", "space discovery", "eclipse", "innovation breakthrough",
-        "mercury retrograde", "horoscope",
-        "anxiety epidemic", "anxiety healing", "mental health anxiety",
+        "feng shui", "astrology trends", "chinese metaphysics",
+        "mercury retrograde", "horoscope", "eclipse astronomy",
+        "anxiety healing", "mental health anxiety",
+        "space discovery", "innovation breakthrough",
     ],
-    "es": ["feng shui consejos", "astrología", "astronomía", "innovación tecnológica", "ansiedad solución"],
-    "zh": ["风水", "占星", "天文", "创新", "焦虑"],
-    "de": ["Feng Shui", "Astrologie", "Astronomie", "Innovation Durchbruch", "Angststörung"],
+    "es": ["feng shui", "astrología", "ansiedad solución", "astronomía descubrimiento"],
+    "zh": ["风水", "占星", "天文发现", "焦虑"],
+    "de": ["Feng Shui", "Astrologie", "Angststörung", "Astronomie Entdeckung"],
 }
 
 BASE_URL = "https://news.google.com/rss/search?q={query}&hl={lang}&gl={country}&ceid={ceid}"
@@ -30,6 +30,34 @@ LANG_PARAMS = {
     "de": ("de", "DE", "DE:de"),
 }
 
+BLOCKED_SOURCES = {
+    "vietnam.vn", "vietnamplus.vn", "mtv.ru", "мтв.онлайн",
+    "kp.ru", "aif.ru", "mk.ru",  # tabloids with low niche relevance
+}
+
+NICHE_KEYWORDS = [
+    # фэн-шуй
+    "фэн-шуй", "фэншуй", "feng shui", "фэн шуй",
+    # метафизика / астрология
+    "астролог", "гороскоп", "ретроград", "меркурий", "затмение",
+    "astrology", "horoscope", "retrograde", "eclipse", "mercury",
+    "astrología", "占星", "Astrologie",
+    # биоэнергетика / метафизика
+    "биоэнергетик", "метафизик", "энергетик", "чакр", "медитац",
+    "chinese metaphysics", "bioenergetics", "风水",
+    # астрономия / космос
+    "астроном", "космос", "звезда", "галактик", "планет", "nasa", "webb",
+    "astronomy", "space", "galaxy", "planet", "star", "cosmos",
+    "Astronomie", "astronomía", "天文",
+    # инновации
+    "инновац", "технолог", "искусственный интеллект", "ии ", "нейросет",
+    "innovation", "breakthrough", "ai ", "artificial intelligence",
+    # тревожность (постоянная боль)
+    "тревог", "тревожн", "паник", "стресс", "депрессия", "выгорани",
+    "anxiety", "panic", "stress", "burnout", "depression", "mental health",
+    "ansiedad", "Angst", "焦虑",
+]
+
 
 def _parse_date(pub: str):
     from email.utils import parsedate_to_datetime
@@ -37,6 +65,16 @@ def _parse_date(pub: str):
         return parsedate_to_datetime(pub)
     except Exception:
         return None
+
+
+def _is_niche_relevant(title: str) -> bool:
+    t = title.lower()
+    return any(kw.lower() in t for kw in NICHE_KEYWORDS)
+
+
+def _is_blocked_source(source: str) -> bool:
+    s = source.lower()
+    return any(blocked in s for blocked in BLOCKED_SOURCES)
 
 
 def fetch_feed(query: str, lang: str) -> list[dict]:
@@ -55,9 +93,13 @@ def fetch_feed(query: str, lang: str) -> list[dict]:
             title = item.findtext("title", "")
             link = item.findtext("link", "")
             pub = item.findtext("pubDate", "")
-            source = item.findtext("source", "")
+            source = item.findtext("source", "") or ""
             pub_dt = _parse_date(pub)
             if pub_dt and pub_dt < week_ago:
+                continue
+            if _is_blocked_source(source):
+                continue
+            if not _is_niche_relevant(title):
                 continue
             items.append({"title": title, "url": link, "published": pub,
                           "source": source, "query": query, "lang": lang})

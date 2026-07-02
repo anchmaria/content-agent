@@ -57,30 +57,41 @@ def _engagement_rate(v: dict) -> str:
 
 def _apply_formula(title: str) -> tuple[str, str]:
     t = title.lower()
-    if any(w in t for w in ["тревог", "anxiety", "паник", "стресс", "stress"]):
+    # Anxiety / stress — permanent pain topic
+    if any(w in t for w in ["тревог", "anxiety", "паник", "стресс", "stress", "депрессия", "выгорани", "burnout", "mental health", "ansiedad", "angst", "焦虑"]):
         formula = "Попадание в боль"
-        headline = f"Если тревога не отпускает даже ночью — это видео для вас"
-    elif any(w in t for w in ["ошибк", "mistake", "wrong", "не так"]):
-        formula = "Разрыв шаблона"
-        headline = f"Ошибка, которую делают все: {_trunc(title, 55)}"
-    elif any(w in t for w in ["как ", "how ", "способ", "метод", "шаг"]):
-        formula = "Конкретная польза"
-        headline = f"3 шага которые реально работают: {_trunc(title, 50)}"
-    elif any(w in t for w in ["фэн-шуй", "feng shui", "风水", "bagua"]):
+        headline = "Если тревога не отпускает даже ночью — вот почему и что с этим делать"
+    # Feng shui
+    elif any(w in t for w in ["фэн-шуй", "фэн шуй", "фэншуй", "feng shui", "风水", "багуа", "bagua"]):
         formula = "Незакрытая петля"
-        headline = f"Я нашла одну вещь в квартире которая блокирует деньги — и это не хлам"
-    elif any(w in t for w in ["астролог", "гороскоп", "astro", "horoscope", "mercury"]):
+        headline = "Одна вещь в квартире, которая блокирует деньги — и это не хлам"
+    # Astrology / horoscope
+    elif any(w in t for w in ["астролог", "гороскоп", "ретроград", "меркурий", "затмение", "horoscope", "astrology", "retrograde", "mercury", "eclipse", "astrología", "占星"]):
         formula = "Открытие-сюрприз"
-        headline = f"Мне понадобилось 5 лет чтобы понять этот принцип в астрологии"
-    elif any(w in t for w in ["деньг", "money", "доход", "финанс"]):
+        headline = "Этот астрологический период меняет всё — большинство об этом не знают"
+    # Chinese metaphysics / bioenergetics
+    elif any(w in t for w in ["метафизик", "биоэнергетик", "чакр", "медитац", "энергетик", "chinese metaphysics", "bioenergetics", "chakra"]):
         formula = "Попадание в боль"
-        headline = f"Куда утекают деньги даже когда вы экономите — {_trunc(title, 45)}"
+        headline = "Почему энергетические практики не работают — и что делать вместо этого"
+    # Money / finance
+    elif any(w in t for w in ["деньг", "money", "доход", "финанс", "богатств", "wealth", "финанс"]):
+        formula = "Попадание в боль"
+        headline = "Куда утекают деньги даже когда вы экономите — разбор по энергиям"
+    # Astronomy / space / science
+    elif any(w in t for w in ["астроном", "космос", "звезда", "галактик", "планет", "nasa", "webb", "astronomy", "space", "galaxy", "planet", "astronomie", "astronomía", "天文"]):
+        formula = "Открытие-сюрприз"
+        headline = "Новое открытие в космосе, которое меняет представление о Вселенной"
+    # Innovation / AI / tech
+    elif any(w in t for w in ["инновац", "технолог", "искусственный интеллект", "нейросет", "innovation", "breakthrough", "artificial intelligence", " ai "]):
+        formula = "Разрыв шаблона"
+        headline = "Технология, которая уже меняет мир — а большинство ещё не заметили"
+    # Energy / fatigue
     elif any(w in t for w in ["энерг", "energy", "усталост", "tired"]):
         formula = "Попадание в боль"
-        headline = f"Почему вы устаёте даже когда высыпаетесь"
+        headline = "Почему вы устаёте даже когда высыпаетесь"
     else:
         formula = "Попадание в боль"
-        headline = f"Что я как эксперт никогда не делаю — и вам не советую"
+        headline = "Что эксперты по метафизике никогда не делают — и вам не советуют"
     return headline, formula
 
 
