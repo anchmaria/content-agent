@@ -36,25 +36,33 @@ BLOCKED_SOURCES = {
 }
 
 NICHE_KEYWORDS = [
-    # фэн-шуй
-    "фэн-шуй", "фэншуй", "feng shui", "фэн шуй",
-    # метафизика / астрология
-    "астролог", "гороскоп", "ретроград", "меркурий", "затмение",
-    "astrology", "horoscope", "retrograde", "eclipse", "mercury",
+    # фэн-шуй / метафизика
+    "фэн-шуй", "фэншуй", "feng shui", "фэн шуй", "цимень", "багуа",
+    "chinese metaphysics", "bioenergetics", "биоэнергетик", "метафизик", "风水",
+    # астрология / даты / удача
+    "астролог", "гороскоп", "ретроград", "меркурий", "затмение", "благоприятн",
+    "энергия удачи", "притяжение", "управление жизнью",
+    "astrology", "horoscope", "retrograde", "eclipse", "mercury", "lunar",
     "astrología", "占星", "Astrologie",
-    # биоэнергетика / метафизика
-    "биоэнергетик", "метафизик", "энергетик", "чакр", "медитац",
-    "chinese metaphysics", "bioenergetics", "风水",
+    # психология / личностный рост
+    "психолог", "личностный рост", "саморазвити", "поиск себя", "эмоциональн",
+    "выход из кризиса", "как изменить жизнь", "в тупике",
+    "psychology", "personal growth", "self development", "emotional intelligence",
+    "life transformation", "psicología", "Psychologie",
+    # женственность
+    "женственност", "женская сила", "женская энергия", "женская психолог",
+    "femininity", "feminine energy", "divine feminine", "womanhood",
+    # боли аудитории
+    "нет энергии", "нет сил", "застой", "нет результата", "хочу изменений",
+    "почему не везёт", "нет мотивации", "выгорани",
+    "no energy", "stuck in life", "no motivation", "burnout", "lost purpose",
     # астрономия / космос
-    "астроном", "космос", "звезда", "галактик", "планет", "nasa", "webb",
-    "astronomy", "space", "galaxy", "planet", "star", "cosmos",
-    "Astronomie", "astronomía", "天文",
+    "астроном", "космос", "nasa", "webb", "astronomy", "space", "Astronomie", "天文",
     # инновации
-    "инновац", "технолог", "искусственный интеллект", "ии ", "нейросет",
-    "innovation", "breakthrough", "ai ", "artificial intelligence",
-    # тревожность (постоянная боль)
-    "тревог", "тревожн", "паник", "стресс", "депрессия", "выгорани",
-    "anxiety", "panic", "stress", "burnout", "depression", "mental health",
+    "инновац", "нейросет", "innovation", "breakthrough", "artificial intelligence",
+    # тревожность
+    "тревог", "паник", "стресс", "депрессия",
+    "anxiety", "panic", "stress", "depression", "mental health",
     "ansiedad", "Angst", "焦虑",
 ]
 
