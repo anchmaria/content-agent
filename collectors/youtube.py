@@ -52,26 +52,28 @@ def search_videos(query: str, max_results: int = 10) -> list[dict]:
 def get_stats(video_ids: list[str]) -> dict[str, dict]:
     if not video_ids:
         return {}
-    params = {
-        "part": "statistics,contentDetails",
-        "id": ",".join(video_ids),
-        "key": YOUTUBE_API_KEY,
-    }
-    r = requests.get(f"{BASE_URL}/videos", params=params, timeout=10)
-    if r.status_code != 200:
-        print(f"YouTube stats error {r.status_code}: {r.text[:200]}")
-        return {}
     result = {}
-    for item in r.json().get("items", []):
-        vid = item["id"]
-        s = item.get("statistics", {})
-        duration = item.get("contentDetails", {}).get("duration", "")
-        result[vid] = {
-            "views": int(s.get("viewCount", 0)),
-            "likes": int(s.get("likeCount", 0)),
-            "comments": int(s.get("commentCount", 0)),
-            "duration": duration,
+    for i in range(0, len(video_ids), 50):
+        batch = video_ids[i:i + 50]
+        params = {
+            "part": "statistics,contentDetails",
+            "id": ",".join(batch),
+            "key": YOUTUBE_API_KEY,
         }
+        r = requests.get(f"{BASE_URL}/videos", params=params, timeout=10)
+        if r.status_code != 200:
+            print(f"YouTube stats error {r.status_code}: {r.text[:200]}")
+            continue
+        for item in r.json().get("items", []):
+            vid = item["id"]
+            s = item.get("statistics", {})
+            duration = item.get("contentDetails", {}).get("duration", "")
+            result[vid] = {
+                "views": int(s.get("viewCount", 0)),
+                "likes": int(s.get("likeCount", 0)),
+                "comments": int(s.get("commentCount", 0)),
+                "duration": duration,
+            }
     return result
 
 
