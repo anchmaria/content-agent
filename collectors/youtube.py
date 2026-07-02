@@ -111,7 +111,7 @@ def extract_pains(comments: list[str]) -> list[str]:
 
 def collect(max_per_query: int = 10) -> list[dict]:
     from datetime import datetime, timedelta, timezone
-    cutoff = datetime.now(timezone.utc) - timedelta(days=30)
+    cutoff = datetime.now(timezone.utc) - timedelta(days=90)
 
     all_videos = {}
     for query in QUERIES:
