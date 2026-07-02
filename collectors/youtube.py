@@ -5,12 +5,23 @@ from config import YOUTUBE_API_KEY
 BASE_URL = "https://www.googleapis.com/youtube/v3"
 
 QUERIES = [
-    # Ниши
-    "фэн-шуй", "китайская метафизика", "астрология", "биоэнергетика",
-    "feng shui", "chinese metaphysics", "astrology trends",
-    "feng shui consejos", "astrología", "风水", "占星",
-    "Feng Shui Tipps", "Astrologie",
-    # Тревожность как боль аудитории
+    # Фэн-шуй и метафизика
+    "фэн-шуй", "китайская метафизика", "биоэнергетика",
+    "feng shui", "chinese metaphysics",
+    "feng shui consejos", "风水",
+    # Астрология
+    "астрология", "гороскоп", "ретроград меркурий", "затмение астрология",
+    "astrology", "astrology trends", "horoscope", "mercury retrograde",
+    "astrología", "占星", "Astrologie",
+    # Психология
+    "психология отношений", "психология женщины", "эмоциональный интеллект",
+    "psychology relationships", "emotional intelligence", "self awareness",
+    "psicología", "Psychologie",
+    # Женственность
+    "женственность", "женская энергия", "женская психология", "быть женщиной",
+    "femininity", "feminine energy", "divine feminine", "womanhood",
+    "feminidad", "Weiblichkeit",
+    # Тревожность как постоянная боль
     "тревожность как избавиться", "тревога панические атаки", "стресс и тревога",
     "anxiety relief", "how to stop anxiety", "anxiety healing",
     "ansiedad como combatir", "Angst überwinden",
@@ -111,7 +122,7 @@ def extract_pains(comments: list[str]) -> list[str]:
 
 def collect(max_per_query: int = 10) -> list[dict]:
     from datetime import datetime, timedelta, timezone
-    cutoff = datetime.now(timezone.utc) - timedelta(days=90)
+    cutoff = datetime.now(timezone.utc) - timedelta(days=7)
 
     all_videos = {}
     for query in QUERIES:
